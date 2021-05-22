@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 function App() {
@@ -6,6 +6,15 @@ function App() {
   const [category, setCategory] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [pseudoConsole, setPseudoConsole] = useState([]);
+  const pseudoConsoleEnd = useRef(null);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [pseudoConsole]);
+
+  function scrollToBottom() {
+    pseudoConsoleEnd.current?.scrollIntoView();
+  }
 
   function handleInput(e) {
     const input = e.target.value;
@@ -15,6 +24,7 @@ function App() {
   function onSubmit(e) {
     e.preventDefault();
     checkInput(inputValue);
+    setInputValue('');
   }
 
   function addCategory(newCategory) {
@@ -194,23 +204,25 @@ function App() {
     }
   }
   return (
-    <>
-      <h1>Vending Machine</h1>
-      <form onSubmit={onSubmit}>
-        <input
-          id="pseudoConsole-input"
-          value={inputValue}
-          onChange={handleInput}
-          autoFocus
-          style={{ width: '100%' }}
-        />
-      </form>
-      <div id="pseudoConsole">
+    <section className="console__wrapper">
+      <div className="console__wrapper__fixed">
+        <h1 className="console__wrapper__heading">Vending Machine</h1>
+        <form onSubmit={onSubmit}>
+          <input
+            className="console__wrapper__input"
+            value={inputValue}
+            onChange={handleInput}
+            autoFocus
+          />
+        </form>
+      </div>
+      <div className="console__wrapper__output">
         {pseudoConsole.map((item, index) => {
           return <p key={index}>{item}</p>;
         })}
       </div>
-    </>
+      <div ref={pseudoConsoleEnd}></div>
+    </section>
   );
 }
 
