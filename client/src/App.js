@@ -19,7 +19,7 @@ function App() {
 
   function addCategory(newCategory) {
     setCategory((prevState) => [...prevState, newCategory]);
-    return `${newCategory.name} ${newCategory.price} ${newCategory.amount}`;
+    return [`${newCategory.name} ${newCategory.price} ${newCategory.amount}`];
   }
 
   function addItem(newAmount) {
@@ -27,7 +27,7 @@ function App() {
     const snack = category.find((item) => item.name === name);
     if (!snack) {
       const error = new Error(`Category ${name} not found`);
-      return `${error.name} ${error.message}`;
+      return [`${error.name} ${error.message}`];
     }
     setCategory((prevState) => {
       return prevState.map((item) =>
@@ -40,7 +40,7 @@ function App() {
           : item,
       );
     });
-    return `${name} ${snack.price} ${snack.amount + parseInt(amount)}`;
+    return [`${name} ${snack.price} ${snack.amount + parseInt(amount)}`];
   }
   function purchase(newTransaction) {
     const { name, date } = newTransaction;
@@ -125,6 +125,11 @@ function App() {
       .concat(`>Total ${total.toFixed(2)}`);
   }
 
+  function error() {
+    const error = new Error('Syntax Error');
+    return [`${error.name} ${error.message}`];
+  }
+
   function checkInput(input) {
     const array = input.split(' ');
     const start = input.indexOf('"') + 1;
@@ -132,54 +137,59 @@ function App() {
     const name = input.slice(start, finish);
     const re = /\s*"\s*/;
     const arrayRe = input.split(re);
-    switch (array[0]) {
+    const command = array[0];
+
+    function execute(command, value) {
+      [`>>> ${input}`]
+        .concat(command(value))
+        .forEach((item) =>
+          setPseudoConsole((prevState) => [...prevState, item]),
+        );
+      return value;
+    }
+
+    switch (command) {
       case 'addCategory':
+        if (!arrayRe[2]) {
+          return execute(error);
+        }
         const priceAndAmount = arrayRe[2].split(' ');
-        setPseudoConsole((prevState) => [
-          ...prevState,
-          addCategory({
-            name,
-            amount: priceAndAmount[1] || 0,
-            price: parseFloat(priceAndAmount[0]).toFixed(2),
-            purchasable: true, //priceAndAmount[1] ? true : false,
-          }),
-        ]);
+        execute(addCategory, {
+          name,
+          amount: priceAndAmount[1] || 0,
+          price: parseFloat(priceAndAmount[0]).toFixed(2),
+          purchasable: true, //priceAndAmount[1] ? true : false,
+        });
         break;
       case 'addItem':
-        setPseudoConsole((prevState) => [
-          ...prevState,
-          addItem({
-            name,
-            amount: arrayRe[2],
-          }),
-        ]);
+        if (!arrayRe[2]) {
+          return execute(error);
+        }
+        execute(addItem, {
+          name,
+          amount: arrayRe[2],
+        });
         break;
       case 'purchase':
-        purchase({ name, date: arrayRe[2] }).forEach((item) =>
-          setPseudoConsole((prevState) => [...prevState, item]),
-        );
+        if (!arrayRe[2]) {
+          return execute(error);
+        }
+        execute(purchase, { name, date: arrayRe[2] });
         break;
       case 'list':
-        list().forEach((item) =>
-          setPseudoConsole((prevState) => [...prevState, item]),
-        );
+        execute(list);
         break;
       case 'clear':
-        clear().forEach((item) =>
-          setPseudoConsole((prevState) => [...prevState, item]),
-        );
+        execute(clear);
         break;
       case 'report':
-        report(array[1]).forEach((item) =>
-          setPseudoConsole((pseudoConsole) => [...pseudoConsole, item]),
-        );
+        if (!array[1]) {
+          return execute(error);
+        }
+        execute(report, array[1]);
         break;
       default:
-        const error = new Error('Syntax Error');
-        setPseudoConsole((pseudoConsole) => [
-          ...pseudoConsole,
-          `${error.name} ${error.message}`,
-        ]);
+        execute(error);
         break;
     }
   }
