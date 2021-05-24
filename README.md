@@ -1,6 +1,6 @@
 # This is a Create React App
 
-To run this app first instal deps in root and client folder, then you can run the app in dev mode with a script below or run it in production mode with the script below or you can run build script and open the index.html file.
+To run this app, first, install deps in root and client folder, second, run build script and then you can run the app in production mode, description is below or you can run the app in dev mode with a script below.
 
 ## Available Scripts
 
