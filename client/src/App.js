@@ -67,7 +67,7 @@ function App() {
           item.name === name
             ? {
                 ...item,
-                amount: item.amount--,
+                amount: item.amount - 1,
               }
             : item,
         );
@@ -166,7 +166,7 @@ function App() {
         const priceAndAmount = arrayRe[2].split(' ');
         execute(addCategory, {
           name,
-          amount: priceAndAmount[1] || 0,
+          amount: parseInt(priceAndAmount[1] || 0),
           price: parseFloat(priceAndAmount[0]).toFixed(2),
           purchasable: true, //priceAndAmount[1] ? true : false,
         });
@@ -207,16 +207,17 @@ function App() {
     <section className="console__wrapper">
       <div className="console__wrapper__fixed">
         <h1 className="console__wrapper__heading">Vending Machine</h1>
-        <form onSubmit={onSubmit}>
+        <form data-testid="consoleForm" onSubmit={onSubmit}>
           <input
             className="console__wrapper__input"
             value={inputValue}
             onChange={handleInput}
             autoFocus
+            data-testid="consoleInput"
           />
         </form>
       </div>
-      <div className="console__wrapper__output">
+      <div data-testid="consoleOutput" className="console__wrapper__output">
         {pseudoConsole.map((item, index) => {
           return <p key={index}>{item}</p>;
         })}
